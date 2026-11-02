@@ -1,103 +1,52 @@
 # Schwarzschild Ray Tracer
 
-A high-performance visual simulation of light trajectories around a Schwarzschild black hole. Raytraced using null geodesics through curved spacetime, with results rendered as a colored projection onto a spherical background.
+Renders a black hole by integrating null geodesics per ray in C++17, multithreaded with OpenMP.
 
----
+![Sample output](assets/sample_output.jpg)
 
-![Sample Output](assets/sample_output.jpg)
+Each pixel's ray is integrated through the Schwarzschild metric. Rays that escape take their color from a spherical background image (`assets/background.jpg`).
 
----
+## Build and run
 
-## Features
+Needs CMake 3.12+, a C++17 compiler and OpenMP. GoogleTest is fetched by CMake.
 
-* **General relativity simulation** using geodesics in Schwarzschild spacetime
-* **Accurate lightlike ray tracing** through numerical integration
-* **Background image mapping** for realistic starfield visuals
-* **Multithreaded rendering** using OpenMP
-* **Test suite** powered by GoogleTest
-
-## File Structure Overview
-
-```
-.
-├── assets/                  # Background and sample images
-│   ├── background.jpg
-│   └── sample_output.jpg
-├── build/                   # CMake build directory
-├── libs/                    # Third-party libraries
-│   └── stb/                 # stb_image and stb_image_write
-├── math/
-│   ├── core/                # Core math utilities
-│   │   ├── tensor.hpp
-│   │   └── vec4.hpp
-│   └── relativity/          # Physics and geodesics
-│       ├── geodesic.hpp
-│       └── relativity.hpp
-├── renderer/               # Rendering logic
-│   └── camera.hpp
-├── tests/                  # Unit tests with GoogleTest
-│   ├── test_vec4.cpp
-│   └── test_relativity.cpp
-├── CMakeLists.txt          # Top-level build file
-├── main.cpp                # Entry point
-├── output.jpg              # Rendered output file
-└── README.md
+```sh
+cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
 ```
 
-## Building and Running
+Run from the repository root, since it reads `assets/background.jpg` by a relative path:
 
-### Prerequisites
-
-* CMake >= 3.12
-* C++17 compiler
-* OpenMP support
-
-### Build Instructions
-
-```bash
-# Clone the repository
-mkdir build && cd build
-
-# Generate project files
-cmake ..
-
-# Build the main application and tests
-cmake --build .
+```sh
+./build/SchwarzschildSim                 # Linux / macOS
+.\build\Release\SchwarzschildSim.exe      # Windows / MSVC
 ```
 
-### Run the Simulation
+It writes the render to `output.jpg`.
 
-```bash
-./SchwarzschildSim
+## Tests
+
+GoogleTest unit tests for the vector math and relativity modules:
+
+```sh
+ctest --test-dir build -C Release
 ```
 
-This will render an image to `output.jpg` using the background at `assets/background.jpg`.
+## Layout
 
-## Running Tests
-
-GoogleTest is automatically downloaded via `FetchContent` and compiled.
-
-From the `build/` directory:
-
-```bash
-ctest
+```
+math/core/          tensor.hpp, vec4.hpp
+math/relativity/    relativity.hpp (metric), geodesic.hpp
+renderer/           camera.hpp (ray setup, OpenMP render loop)
+tests/              test_vec4.cpp, test_relativity.cpp
+libs/stb/           image loading and writing
+assets/             background and sample output
 ```
 
-Or run individual test binaries:
+## Credits
 
-```bash
-./test_relativity
-./test_vec4
-```
-
-## Dependencies
-
-* [stb\_image](https://github.com/nothings/stb) – Image loading and saving
-* [GoogleTest](https://github.com/google/googletest) – Unit testing
+The math and overall approach follow James' tutorial, ["Implementing General Relativity: Rendering the Schwarzschild black hole, in C++"](https://20k.github.io/c++/2024/05/31/schwarzschild.html) (May 31, 2024). The code here is my own implementation. Image I/O uses [stb](https://github.com/nothings/stb).
 
 ## License
 
-This project is licensed under the terms of the MIT License. See `LICENSE` for more information.
-
-## Credits & Acknowledgments
-This project’s mathematical derivations and conceptual architecture for simulating a Schwarzschild black hole in C++ were inspired by James’ tutorial, “Implementing General Relativity: Rendering the Schwarzschild black hole, in C++,” originally published May 31, 2024 on https://20k.github.io/c++/2024/05/31/schwarzschild.html. While the code has been independently developed from the ground up, this post provided the mathematical foundation for the geodesic integration and metric setup.
+MIT. See [LICENSE](LICENSE).
